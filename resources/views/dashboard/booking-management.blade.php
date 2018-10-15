@@ -75,12 +75,12 @@
                                         <div class="form-group">
                                             <label>{{ __('Select date and time') }}:</label>
 
-                                            <div class="input-group" style="display: none">
+                                        <!--    <div class="input-group">
                                                 <input type="text" class="form-control pull-right" name="bookingTime" id="bookingTime">
                                                 <div class="input-group-addon">
                                                     <i class="fa fa-calendar-check-o"></i>
                                                 </div>
-                                            </div>
+                                            </div> -->
 
                                             <br />
 
@@ -494,7 +494,8 @@
                 });
 
             // Date range picker with time picker
-            $('#bookingTime').daterangepicker({
+        /*    $('#bookingTime').daterangepicker({
+              //  singleDatePicker: true,
                 timePicker: true,
                 timePickerIncrement: 30,
                 timePicker24Hour: true,
@@ -503,7 +504,7 @@
                 locale: {
                     format: 'DD/MM/YYYY HH:mm:ss'
                 }
-            });
+            }); */
 
             // Date range picker with time picker
             $('#bookingTimeUno').daterangepicker({
@@ -534,10 +535,12 @@
                 event.preventDefault();
                 var data = $(this).serialize();
 
-           //    var bookingTime = document.getElementById('bookingTime').value;
+            //   var bookingTime = document.getElementById('bookingTime').value;
                 var bookingTimeUno = document.getElementById('bookingTimeUno').value;
                 var bookingTimeDue = document.getElementById('bookingTimeDue').value;
                 var bookingTime = bookingTimeUno + ' - ' + bookingTimeDue;
+             //   console.log(bookingTime);
+                console.log(bookingTime);
 
                 $.ajax({
                     type: "POST",

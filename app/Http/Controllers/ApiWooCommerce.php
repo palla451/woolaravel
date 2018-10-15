@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Bookingsupport;
+use App\Http\Controllers\BookingController;
 use App\Location;
 use App\Room;
 use Illuminate\Support\Facades\Auth;
@@ -264,6 +265,9 @@ class ApiWooCommerce extends Controller
     {
         $email = base64_decode($string);
         $user = DB::table('users')->where('email', '=', $email)->get();
+		
+		// return $user;
+		
         $user_id = $user[0]->id;
         $userName = $user[0]->name;
 

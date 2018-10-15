@@ -74,8 +74,6 @@ class BookingController extends Controller
 
         $data = $request->all();
 
-      //  return $data;
-
         $roomId = $data['roomId'];
 
         $roomName = $data['roomName'];
@@ -100,6 +98,7 @@ class BookingController extends Controller
         $diff_day = (strtotime($end_hour[0]) - strtotime($start_hour[0])) / 86400; // prenotazione su più giorni
         $duration = $diff_sec / 3600;
 
+
         if ($diff_day == 0) {
 
             if ($duration > 4) {
@@ -107,9 +106,9 @@ class BookingController extends Controller
                 $duration = 8;
                 $price = Price::where('duration', '=', $duration)->where('price_id', '=', $roomId)->get();
 
-               // return $price;
-
-               $booking = Booking::create([
+               
+				
+				$booking = Booking::create([
                     'room_id' => $data['roomId'],
                     'booked_by' => Auth::user()->id,
                     'booked_name' => User::find(Auth::user()->id)->name,
@@ -119,7 +118,8 @@ class BookingController extends Controller
                     'location' => $room->location,
                     'price' => $price[0]->price
                 ]);
-
+			
+				
 
 
            // START insert order in woocommerce
@@ -128,9 +128,10 @@ class BookingController extends Controller
                 // ed inserire l'ordine nel carrello
 
                 $wp_users = $db->table('wp_users')->where('user_email','=',$user->email)->get();
+				// return $wp_users;
 
                 $wp_posts = $db->table('wp_posts')->orderBy('id','DESC')->get();
-
+				// return $wp_posts;
 
                 $wp_woocommerce_order_items = $db->table('wp_woocommerce_order_items')->orderBy('order_item_id','DESC')->get();
 
@@ -161,7 +162,6 @@ class BookingController extends Controller
 
                 $agent= request()->header('User-Agent');
 
-
                 $this->woo_insert_post($db,$id_wp_posts,$id_wp_user);
 
                 $this->woo_insert_postmeta($db,$id_wp_posts,$id_wp_user,$ip,$agent,$price[0]->price,$first_name,$last_name,$address_1);
@@ -180,6 +180,7 @@ class BookingController extends Controller
 
             } else {
                 $price = Price::where('duration', '=', $duration)->where('price_id', '=', $roomId)->get();
+
 
                 $booking = Booking::create([
                     'room_id' => $data['roomId'],
@@ -469,6 +470,10 @@ class BookingController extends Controller
 
     public function search(Request $request)
     {
+		
+		//return $request->all();
+
+      //  return $request->all();
 
        // return $request->bookingTimeUno;
 
@@ -481,10 +486,13 @@ class BookingController extends Controller
         }
 
         $data = $request->validate([
-            'bookingTime' => [
+            'bookingTimeUno' => [
                 'bail',
-                'required',
-                new Duration()
+                'required'
+            ],
+            'bookingTimeDue' => [
+                'bail',
+                'required'
             ],
             'pax' => 'required|integer|min:1',
             'location' => 'string'
@@ -494,22 +502,25 @@ class BookingController extends Controller
 
         $bookingTime = explode(' - ', $time);
 
+       // return $bookingTime;
+
         $start = Carbon::createFromFormat(DateFormat::DATE_RANGE_PICKER, $bookingTime[0]);
         $end = Carbon::createFromFormat(DateFormat::DATE_RANGE_PICKER, $bookingTime[1]);
 
         $start_hour = explode(" ", $start);
         $end_hour = explode(" ", $end);
 
-
         $diff_sec = strtotime($end_hour[1]) - strtotime($start_hour[1]);
-
 
         $diff_sec = strtotime($end_hour[1]) - strtotime($start_hour[1]);
 
         // Todo in case of duration is <> 4 end >8 //
 
         $duration = (integer)$diff_sec / 3600;
-        $diff_day = (strtotime($end_hour[0]) - strtotime($start_hour[0])) / 86400; // differenza tra date in giorni
+
+        $diff_day = (strtotime($end_hour[0]) - strtotime($start_hour[0])) / 86400;
+
+         // differenza tra date in giorni
 
         if ($diff_day == 0) {
             if ($duration > 4) {
@@ -580,14 +591,15 @@ class BookingController extends Controller
 
             $diff_day = $diff_day + 1;
 
-            $duration = 8;
-
             $duration = (integer)$diff_sec / 3600;
 
-            if ($duration > 5) {
+        //   return $diff_day.' - '.$duration;
+
+            if ($duration > 4) {
+
                 $duration = 8;
                 // Query ricerca disponibilita //
-                $rooms = Room::Available($start, $end)
+                $rooms = Room::Available($start, $end,$diff_day)
                     ->join('prices', function ($join) use ($duration) {
                         $join->on('prices.price_id', '=', 'rooms.id')
                             ->where('prices.duration', '=', $duration);

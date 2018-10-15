@@ -642,7 +642,7 @@
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',
                             cancelButtonColor: '#d33',
-                            confirmButtonText: 'Register',
+                            confirmButtonText: 'Register or Login',
                         })
                         .then(function(){
                                     var input = {
